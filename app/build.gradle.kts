@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library") version "8.7.3" apply false
+    id("com.android.library") version "8.13.0" apply false
     id("com.android.application") version "7.2.2" apply true
 
     val kotlinVersion = "2.1.0"
@@ -8,11 +8,11 @@ plugins {
     kotlin("plugin.serialization") version kotlinVersion
 }
 
-kotlin { jvmToolchain(17) }
+kotlin { jvmToolchain(23) }
 
 android {
     namespace = "fr.sercurio.soulseek"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 29
         applicationId = "fr.sercurio.soulseek.app"
@@ -21,10 +21,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { viewBinding = true }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }
 
 dependencies {
