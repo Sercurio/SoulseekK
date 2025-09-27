@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.serialization") version kotlinVersion
 }
 
-kotlin { jvmToolchain(23) }
+kotlin { jvmToolchain(17) }
 
 android {
     namespace = "fr.sercurio.soulseek"

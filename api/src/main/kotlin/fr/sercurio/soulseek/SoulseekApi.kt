@@ -186,34 +186,29 @@ import kotlin.random.Random
 //}
 
 fun main() {
-  runBlocking {
-    val job = CoroutineScope(Job())
-    val serverConnection = ServerSocketAdapter(scope = job)
-    val api = SoulseekClientImpl(serverConnection)
+    runBlocking {
+        val job = CoroutineScope(Job())
+        val serverConnection = ServerSocketAdapter(scope = job)
+        val api = SoulseekClientImpl(serverConnection)
 
-    api.connect()
-      delay(5000)
-    api.login("DebugApp", "DebugApp")
+        api.connect()
+        delay(5000)
+        api.login("DebugApp", "DebugApp")
 
-    //        api.onLogin { if (it.connected) println("Logged sucessfully !") else println("not
-    // logged") }
-    //        api.onReceiveRoomList {}
-    //        api.onReceiveSearchReply { searchReplyMessage ->
-    //            launch {
-    //                println(
-    //                    "searchReply:
-    // ${searchReplyMessage.username}\n${searchReplyMessage.soulFiles.map { it.filename }}"
-    //                )
-    //                // api.queueUpload(searchReplyMessage.username,
-    // searchReplyMessage.soulFiles[0])
-    //            }
-    //        }
-    //        api.login("DebugApp", "DebugApp")
-    //
-    //        api.fileSearch("Shpongle")
-
-    while (true) {
-      delay(1000)
+        launch {
+            api.loginStatus.collect {
+                it?.let {
+                    if (it.success) println("Logged sucessfully !") else println(
+                        "Login failed: ${it.message}"
+                    )
+                }
+            }
+        }
+        launch {
+            api.rooms.collect { it.forEach { room -> println(room.name) } }
+        }
+        while (true) {
+            delay(1000)
+        }
     }
-  }
 }
