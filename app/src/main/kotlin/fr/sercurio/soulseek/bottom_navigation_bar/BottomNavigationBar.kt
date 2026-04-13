@@ -11,38 +11,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import fr.sercurio.soulseek.SoulseekApi
+import fr.sercurio.soulseek.SoulseekClient
+import org.koin.compose.koinInject
 
 @Composable
-fun BottomNavigationBar(soulseekApi: SoulseekApi, navController: NavHostController) {
-    var navigationSelectedItem by remember {
-        mutableIntStateOf(0)
-    }
+fun BottomNavigationBar(soulseekClient: SoulseekClient = koinInject(), navController: NavHostController) {
+    var navigationSelectedItem by remember { mutableIntStateOf(0) }
 
     NavigationBar {
-        BottomNavigationItem().bottomNavigationItems()
-            .forEachIndexed { index, navigationItem ->
-                NavigationBarItem(
-                    selected = index == navigationSelectedItem,
-                    label = {
-                        Text(navigationItem.label)
-                    },
-                    icon = {
-                        Icon(
-                            navigationItem.icon,
-                            contentDescription = navigationItem.label
-                        )
-                    },
-                    onClick = {
-                        navigationSelectedItem = index
-                        navController.navigate(navigationItem.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    })
-            }
+        BottomNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
+            NavigationBarItem(
+                selected = index == navigationSelectedItem,
+                label = { Text(navigationItem.label) },
+                icon = { Icon(navigationItem.icon, contentDescription = navigationItem.label) },
+                onClick = {
+                    navigationSelectedItem = index
+                    navController.navigate(navigationItem.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
+        }
     }
 }

@@ -9,32 +9,22 @@ import androidx.navigation.toRoute
 import fr.sercurio.soulseek.login.LoginScreen
 import kotlinx.serialization.Serializable
 
-@Serializable
-object Login
+@Serializable object Login
 
-@Serializable
-object Main
+@Serializable object Main
 
 @Composable
-fun NavigationGraph(
-    soulseekApi: SoulseekApi
-) {
-    val navController: NavHostController = rememberNavController()
+fun NavigationGraph() {
+  val navController: NavHostController = rememberNavController()
 
-    NavHost(navController, startDestination = Login) {
-        composable<Login> { backStackEntry ->
-            val login: Login = backStackEntry.toRoute()
-            LoginScreen(
-                soulseekApi,
-                onNavigateToMain = {
-                    navController.navigate(
-                        route = Main
-                    )
-                })
-        }
-        composable<Main> { backStackEntry ->
-            val main: Main = backStackEntry.toRoute()
-            MainScreen(soulseekApi)
-        }
+  NavHost(navController, startDestination = Login) {
+    composable<Login> { backStackEntry ->
+      val login: Login = backStackEntry.toRoute()
+      LoginScreen({ navController.navigate(Main) })
     }
+    composable<Main> { backStackEntry ->
+      val main: Main = backStackEntry.toRoute()
+      MainScreen()
+    }
+  }
 }

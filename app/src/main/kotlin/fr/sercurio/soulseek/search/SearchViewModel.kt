@@ -1,34 +1,19 @@
 package fr.sercurio.soulseek.search
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.sercurio.soulseek.SoulseekApi
-import fr.sercurio.soulseek.client.peer.messages.SearchReplyMessage
-import fr.sercurio.soulseek.client.shared.model.SoulFile
+import fr.sercurio.soulseek.SoulseekClient
+import fr.sercurio.soulseek.data.model.SoulFile
 import kotlinx.coroutines.launch
 
-class SearchViewModel(private val soulseekApi: SoulseekApi) :
-    ViewModel() {
-    var searchRepliesState = mutableStateListOf<SearchReplyMessage?>()
+class SearchViewModel(val soulseekClient: SoulseekClient) : ViewModel() {
+    val searchRepliesState = soulseekClient
 
-    init {
-        soulseekApi.onReceiveSearchReply {
-            searchRepliesState.add(it)
-        }
+    fun search(searchFileRequest: String) {
+        viewModelScope.launch { soulseekClient.fileSearch(searchFileRequest) }
     }
 
-    fun search(searchRequest: String) {
-        viewModelScope.launch {
-            soulseekApi.fileSearch(searchRequest)
-        }
-    }
-
-    fun queueUpload(username: String, soulFile: SoulFile) {
-        viewModelScope.launch {
-            soulseekApi.queueUpload(username, soulFile)
-        }
-    }
-
-
+//    fun queueUpload(username: String, soulFile: SoulFile) {
+//        viewModelScope.launch { soulseekClient.queueUpload(username, soulFile) }
+//    }
 }

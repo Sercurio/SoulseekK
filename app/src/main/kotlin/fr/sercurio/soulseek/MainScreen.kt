@@ -14,32 +14,18 @@ import fr.sercurio.soulseek.bottom_navigation_bar.BottomNavigationBar
 import fr.sercurio.soulseek.rooms.RoomsScreen
 import fr.sercurio.soulseek.search.SearchScreen
 import fr.sercurio.soulseek.settings.SettingsScreen
+import org.koin.compose.koinInject
 
 @Composable
-fun MainScreen(soulseekApi: SoulseekApi) {
+fun MainScreen(soulseekClient: SoulseekClient = koinInject()) {
     val navController = rememberNavController()
 
-    Scaffold(
-        bottomBar = { BottomNavigationBar(soulseekApi, navController) }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            NavHost(
-                navController = navController,
-                startDestination = Screens.Rooms.route,
-            ) {
-                composable(Screens.Rooms.route) {
-                    RoomsScreen(soulseekApi)
-                }
-                composable(Screens.Search.route) {
-                    SearchScreen(soulseekApi)
-                }
-                composable(Screens.Settings.route) {
-                    SettingsScreen()
-                }
+    Scaffold(bottomBar = { BottomNavigationBar(soulseekClient, navController) }) { padding ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            NavHost(navController = navController, startDestination = Screens.Rooms.route) {
+                composable(Screens.Rooms.route) { RoomsScreen() }
+                composable(Screens.Search.route) { SearchScreen() }
+                composable(Screens.Settings.route) { SettingsScreen() }
             }
         }
     }
@@ -48,5 +34,5 @@ fun MainScreen(soulseekApi: SoulseekApi) {
 @Preview
 @Composable
 fun MainScreenPreview() {
-    MainScreen(SoulseekApi())
+    MainScreen(SoulseekClient())
 }

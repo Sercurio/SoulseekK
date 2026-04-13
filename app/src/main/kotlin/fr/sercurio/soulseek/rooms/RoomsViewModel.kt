@@ -1,32 +1,47 @@
 package fr.sercurio.soulseek.rooms
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import fr.sercurio.soulseek.SoulseekApi
-import fr.sercurio.soulseek.client.server.messages.RoomListMessage
-import fr.sercurio.soulseek.client.server.messages.SayInRoomMessage
+import androidx.lifecycle.viewModelScope
+import fr.sercurio.soulseek.SoulseekClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class RoomsViewModel(val soulseekApi: SoulseekApi) : ViewModel() {
-    var roomsListState by mutableStateOf<RoomListMessage?>(null)
-    var roomsMessagesState = mutableStateListOf<SayInRoomMessage?>()
-    var currentRoomState = mutableStateOf<String?>(null)
+class RoomsViewModel(val soulseekClient: SoulseekClient) : ViewModel() {
+  private val _messageInput = MutableStateFlow("")
+  private val _currentRoomName = MutableStateFlow<String?>(null)
 
-    init {
-        soulseekApi.onReceiveRoomList {
-            roomsListState = it
-        }
+  val messageInput = _messageInput.asStateFlow()
+  val roomsListState = soulseekClient.rooms
 
-        soulseekApi.onSayInRoom { roomsMessagesState.add(it) }
+  val currentRoomState =
+      combine(roomsListState, _currentRoomName) { rooms, name -> rooms.find { it.name == name } }
+          .stateIn(viewModelScope, WhileSubscribed(5000), null)
+
+  val currentRoomMessages =
+      currentRoomState
+          .map { room -> room?.messages ?: emptyList() }
+          .stateIn(viewModelScope, WhileSubscribed(5000), emptyList())
+
+  fun joinRoom(roomName: String) = viewModelScope.launch {
+    _currentRoomName.value = roomName
+    soulseekClient.joinRoom(roomName)
+  }
+
+  fun onMessageChange(newValue: String) {
+    _messageInput.value = newValue
+  }
+
+  fun sendRoomMessage() {
+    viewModelScope.launch {
+      _currentRoomName.value?.let {
+        soulseekClient.sendRoomMessage(it, messageInput.value)
+        _messageInput.value = ""
+      }
     }
-
-    suspend fun joinRoom(roomName: String) {
-        soulseekApi.joinRoom(roomName)
-    }
-
-    suspend fun sayInRoom(roomName: String, message: String) {
-        soulseekApi.sayInRoom(roomName, message)
-    }
+  }
 }

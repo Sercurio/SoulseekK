@@ -1,0 +1,108 @@
+[versions]
+# AndroidX & UI
+appcompat = "1.7.1"
+preference = "1.2.1"
+constraintlayout = "2.2.1"
+composeBom = "2026.03.01"
+navigation = "2.9.7"
+materialIcons = "1.7.8"
+
+# Kotlin & Networking
+kotlinxCoroutines = "1.10.2"
+kotlinxSerialization = "1.11.0"
+kotlinxIoCore = "0.9.0"
+ktorNetwork = "3.4.2"
+
+# DI & Logging
+koin-bom = "4.2.1"
+slf4jSimple = "2.0.17"
+
+# Utils & Tests
+commonsConfiguration2 = "2.14.0"
+junitJupiter = "6.0.3"
+
+[libraries]
+# AndroidX Core
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+# Kotlinx & Serialization
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIoCore" }
+
+# Navigation
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+
+# Compose (BOM)
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Koin
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin-bom" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin-bom" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-bom" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-bom" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin-bom" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin-bom" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin-bom" }
+
+# Network & Utils
+ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktorNetwork" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
+commons-configuration2 = { module = "org.apache.commons:commons-configuration2", version.ref = "commonsConfiguration2" }
+
+# Test
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[bundles]
+# :app
+android-ui = [
+    "androidx-appcompat",
+    "androidx-constraintlayout",
+    "androidx-preference"
+]
+compose = [
+    "androidx-compose-ui",
+    "androidx-compose-material3",
+    "androidx-compose-ui-tooling-preview",
+    "androidx-compose-material-icons-extended"
+]
+navigation = [
+    "androidx-navigation-compose",
+    "androidx-navigation-fragment",
+    "androidx-navigation-ui"
+]
+koin-android-bundle = [
+    "koin-android",
+    "koin-androidx-compose",
+    "koin-compose",
+    "koin-compose-viewmodel"
+]
+
+# :api
+api-core = [
+    "kotlinx-coroutines-core",
+    "kotlinx-serialization-json",
+    "kotlinx-io-core",
+    "ktor-network",
+    "koin-core",
+    "koin-ktor"
+]
+
+# Tests
+unit-testing = [
+    "junit-jupiter",
+    "kotlinx-coroutines-test",
+    "koin-test"
+]
