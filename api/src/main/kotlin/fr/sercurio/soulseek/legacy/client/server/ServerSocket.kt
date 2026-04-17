@@ -1,30 +1,31 @@
-//package fr.sercurio.soulseek.client.server
+// package fr.sercurio.soulseek.client.server
 //
-//import fr.sercurio.soulseek.client.shared.ResponseCallback
-//import fr.sercurio.soulseek.client.shared.AbstractSocket
-//import fr.sercurio.soulseek.client.server.messages.ConnectToPeerMessage
-//import fr.sercurio.soulseek.client.server.messages.LoginMessage
-//import fr.sercurio.soulseek.client.server.messages.RoomListMessage
-//import fr.sercurio.soulseek.client.server.messages.SayInRoomMessage
-//import fr.sercurio.soulseek.client.shared.model.ByteMessage
-//import fr.sercurio.soulseek.server.entities.RoomApiModel
-//import fr.sercurio.soulseek.server.model.LoginResponse
-//import fr.sercurio.soulseek.server.toMD5
-//import fr.sercurio.soulseek.server.utils.SoulStack
-//import kotlinx.coroutines.CompletableDeferred
-//import kotlinx.coroutines.TimeoutCancellationException
-//import kotlinx.coroutines.withTimeout
-//import java.util.concurrent.TimeoutException
-//import kotlin.random.Random
+// import fr.sercurio.soulseek.client.shared.ResponseCallback
+// import fr.sercurio.soulseek.client.shared.AbstractSocket
+// import fr.sercurio.soulseek.client.server.messages.ConnectToPeerMessage
+// import fr.sercurio.soulseek.client.server.messages.LoginMessage
+// import fr.sercurio.soulseek.client.server.messages.RoomListMessage
+// import fr.sercurio.soulseek.client.server.messages.SayInRoomMessage
+// import fr.sercurio.soulseek.client.shared.model.ByteMessage
+// import fr.sercurio.soulseek.server.entities.RoomApiModel
+// import fr.sercurio.soulseek.server.model.LoginResponse
+// import fr.sercurio.soulseek.server.toMD5
+// import fr.sercurio.soulseek.server.utils.SoulStack
+// import kotlinx.coroutines.CompletableDeferred
+// import kotlinx.coroutines.TimeoutCancellationException
+// import kotlinx.coroutines.withTimeout
+// import java.util.concurrent.TimeoutException
+// import kotlin.random.Random
 //
-//class ServerSocket(
+// class ServerSocket(
 //    host: String,
 //    port: Int,
 //    private val loginCallback: ResponseCallback<LoginMessage> = ResponseCallback(),
 //    private val roomListCallback: ResponseCallback<RoomListMessage> = ResponseCallback(),
 //    private val sayInRoomCallback: ResponseCallback<SayInRoomMessage> = ResponseCallback(),
-//    private val connectToPeerCallback: ResponseCallback<ConnectToPeerMessage> = ResponseCallback(),
-//) : AbstractSocket(host, port) {
+//    private val connectToPeerCallback: ResponseCallback<ConnectToPeerMessage> =
+// ResponseCallback(),
+// ) : AbstractSocket(host, port) {
 //    private val loginDeferred = CompletableDeferred<LoginResponse>()
 //
 //
@@ -39,7 +40,8 @@
 //            val code = readChannel.readInt()
 //
 //            println(
-//                "ServerClient received: Message code: $code Packet Size: ${readChannel.packLeft + 4}"
+//                "ServerClient received: Message code: $code Packet Size: ${readChannel.packLeft +
+// 4}"
 //            )
 //
 //            when (code) {
@@ -296,7 +298,8 @@
 //        onReceiveFileSearch(username, ticket, query, time)
 //
 //        val cursor: Cursor = GoSeekData.searchShares(query)
-//        println( "Search Performed. query:" + query + " Time:" + (System.currentTimeMillis() - time))
+//        println( "Search Performed. query:" + query + " Time:" + (System.currentTimeMillis() -
+// time))
 //        if (cursor != null) {
 //            println( "num results:" + cursor.getCount())
 //            if (cursor.getCount() !== 0) {
@@ -375,11 +378,13 @@
 //        var dislikes = String()
 //        i = 0
 //        while (i < nDislikes) {
-//            dislikes = StringBuilder(dislikes).append(soulInput.readString()).append("\n").toString()
+//            dislikes =
+// StringBuilder(dislikes).append(soulInput.readString()).append("\n").toString()
 //            i++
 //        }
 //        val activity: Activity = Util.uiActivity
-//        if (activity.getClass() === ProfileActivity::class.java && (activity as ProfileActivity).peerName.equals(user)) {
+//        if (activity.getClass() === ProfileActivity::class.java && (activity as
+// ProfileActivity).peerName.equals(user)) {
 //            (activity as ProfileActivity).updateLikes(likes, dislikes)
 //        }*/
 //    }
@@ -750,4 +755,4 @@
 //        */
 //        roomListCallback.update(RoomListMessage(rooms))
 //    }
-//}
+// }

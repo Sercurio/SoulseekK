@@ -19,7 +19,7 @@ class ByteMessage {
     return this
   }
 
-  fun writeLong(value: Long): ByteMessage {
+  fun writeInt64(value: Long): ByteMessage {
     val buffer = ByteBuffer.allocate(8).order(byteOrder).putLong(value)
     data += buffer.array()
     return this
@@ -47,5 +47,9 @@ class ByteMessage {
     fullBuffer.putInt(data.size)
     fullBuffer.put(data)
     return fullBuffer.array()
+  }
+
+  fun raw(): ByteArray {
+    return data
   }
 }

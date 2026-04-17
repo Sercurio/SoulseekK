@@ -25,6 +25,7 @@ abstract class BaseSocket(
     private val host: String,
     private val port: Int,
     private val scope: CoroutineScope,
+    private val selectorManager: SelectorManager,
 ) {
   private var socket: Socket? = null
   protected lateinit var readChannel: SoulInputStream
@@ -41,7 +42,6 @@ abstract class BaseSocket(
     if (_isConnected.value) return
 
     try {
-      val selectorManager = SelectorManager(Dispatchers.IO)
       val newSocket = aSocket(selectorManager).tcp().connect(host, port)
 
       socket = newSocket

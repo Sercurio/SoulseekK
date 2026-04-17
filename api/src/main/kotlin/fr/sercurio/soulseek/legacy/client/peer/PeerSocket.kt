@@ -1,22 +1,22 @@
-//package fr.sercurio.soulseek.client.peer
+// package fr.sercurio.soulseek.client.peer
 //
-//import fr.sercurio.soulseek.client.shared.ResponseCallback
-//import fr.sercurio.soulseek.client.shared.SoulInputStream
-//import fr.sercurio.soulseek.client.shared.AbstractSocket
-//import fr.sercurio.soulseek.client.peer.messages.SearchReplyMessage
-//import fr.sercurio.soulseek.client.peer.messages.TransferRequestMessage
-//import fr.sercurio.soulseek.client.shared.model.ByteMessage
-//import fr.sercurio.soulseek.client.shared.model.SoulFile
-//import fr.sercurio.soulseek.server.toInt
-//import io.ktor.utils.io.ByteReadChannel
-//import io.ktor.utils.io.readFully
-//import java.io.ByteArrayOutputStream
-//import java.nio.ByteBuffer
-//import java.nio.ByteOrder
-//import java.util.zip.Inflater
-//import kotlinx.coroutines.delay
+// import fr.sercurio.soulseek.client.shared.ResponseCallback
+// import fr.sercurio.soulseek.client.shared.SoulInputStream
+// import fr.sercurio.soulseek.client.shared.AbstractSocket
+// import fr.sercurio.soulseek.client.peer.messages.SearchReplyMessage
+// import fr.sercurio.soulseek.client.peer.messages.TransferRequestMessage
+// import fr.sercurio.soulseek.client.shared.model.ByteMessage
+// import fr.sercurio.soulseek.client.shared.model.SoulFile
+// import fr.sercurio.soulseek.server.toInt
+// import io.ktor.utils.io.ByteReadChannel
+// import io.ktor.utils.io.readFully
+// import java.io.ByteArrayOutputStream
+// import java.nio.ByteBuffer
+// import java.nio.ByteOrder
+// import java.util.zip.Inflater
+// import kotlinx.coroutines.delay
 //
-//class PeerSocket(
+// class PeerSocket(
 //    host: String,
 //    port: Int,
 //    private val token: Int,
@@ -24,7 +24,7 @@
 //    private val searchReplyCallback: ResponseCallback<SearchReplyMessage> = ResponseCallback(),
 //    private val transferRequestCallback: ResponseCallback<TransferRequestMessage> =
 //        ResponseCallback(),
-//) : AbstractSocket(host, port) {
+// ) : AbstractSocket(host, port) {
 //    override suspend fun onSocketConnected() {
 //        println("Connected to $username")
 //        pierceFirewall(token)
@@ -37,7 +37,8 @@
 //                readChannel.readAndSetMessageLength()
 //                val code = readChannel.readInt()
 //                println(
-//                    "PeerClient received: Message code: $code Packet Size: ${readChannel.packLeft + 4}"
+//                    "PeerClient received: Message code: $code Packet Size: ${readChannel.packLeft
+// + 4}"
 //                )
 //
 //                when (code) {
@@ -93,7 +94,8 @@
 //        println("Loading $nDirs folders.")
 //        for (i in 0 until nDirs) {
 //            val dirName = inflatedReadChannel.readString()
-//            /*val parent: ShareDirectory? = hashMap[Util.getFolderPath(dirName)] as ShareDirectory?
+//            /*val parent: ShareDirectory? = hashMap[Util.getFolderPath(dirName)] as
+// ShareDirectory?
 //            val currentDir = ShareDirectory(dirName, parent)
 //            hashMap[dirName] = currentDir
 //            if (parent == null) {
@@ -231,7 +233,8 @@
 //        val queuesize = readChannel.readInt()
 //        val slotsfree = readChannel.readInt()
 //        println("Received User Info Reply.") /*val activity: Activity = Util.uiActivity
-//        if (activity.getClass() === ProfileActivity::class.java && (activity as ProfileActivity).peerName.equals(this.peerName)) {
+//        if (activity.getClass() === ProfileActivity::class.java && (activity as
+// ProfileActivity).peerName.equals(this.peerName)) {
 //            (activity as ProfileActivity).updateProfile(description)
 //        }*/
 //    }
@@ -261,7 +264,8 @@
 //            val dir = soulInput.readString(dataInputStream)
 //            val nFiles = soulInput.readInt(dataInputStream)
 //            println( "Parsing " + dir + " from:" + this.peerName + ".")
-//            var currentDir: ShareDirectory? = this.service.rootShare.get(this.peerName) as ShareDirectory
+//            var currentDir: ShareDirectory? = this.service.rootShare.get(this.peerName) as
+// ShareDirectory
 //            if (currentDir == null) {
 //                currentDir = ShareDirectory(dir, null)
 //                this.service.rootShare.put(this.peerName, currentDir)
@@ -334,7 +338,8 @@
 //    }
 //
 //    private fun receivePlaceInQueueReply() {
-//        /* GoSeekData.updateDownloadPlace(this.peerName, soulInput.readString(), soulInput.readInt())
+//        /* GoSeekData.updateDownloadPlace(this.peerName, soulInput.readString(),
+// soulInput.readInt())
 //        val a: Activity = Util.uiActivity
 //        if (a.getClass() === TransfersActivity::class.java) {
 //            (a as TransfersActivity).update()
@@ -534,4 +539,4 @@
 //
 //        return bytes.copyOfRange(4, 8)
 //    }
-//}
+// }

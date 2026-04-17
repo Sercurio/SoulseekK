@@ -2,10 +2,10 @@ package fr.sercurio.soulseek.data.network
 
 import fr.sercurio.soulseek.domain.IServerConnection
 import fr.sercurio.soulseek.domain.model.Login
-import fr.sercurio.soulseek.domain.model.PeerConnectionInfo
 import fr.sercurio.soulseek.domain.model.Room
 import fr.sercurio.soulseek.domain.model.ServerEvent
 import fr.sercurio.soulseek.domain.model.User
+import io.ktor.network.selector.SelectorManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +15,8 @@ class ServerConnectionSocket(
     host: String = "server.slsknet.org",
     port: Int = 2242,
     scope: CoroutineScope,
-) : BaseSocket(host, port, scope), IServerConnection {
+    selectorManager: SelectorManager,
+) : BaseSocket(host, port, scope, selectorManager), IServerConnection {
 
   private val _events = MutableSharedFlow<ServerEvent>(extraBufferCapacity = 64)
 
@@ -27,7 +28,7 @@ class ServerConnectionSocket(
     try {
       readChannel.readAndSetMessageLength()
       val event: ServerEvent? =
-          when (val code = readChannel.readInt()) {
+          when (val code = readChannel.readInt32()) {
             1 -> parseLoginResponse()
             3 -> parseGetPeerAddress()
             5 -> parseWatchUser()
@@ -92,7 +93,7 @@ class ServerConnectionSocket(
   private suspend fun parseLoginResponse(): ServerEvent {
     return if (readChannel.readBoolean()) {
       val greeting = readChannel.readString()
-      readChannel.readInt() // ip
+      readChannel.readInt32() // ip
       ServerEvent.Login(Login(true, greeting))
     } else {
       val reason: String = readChannel.readString()
@@ -103,7 +104,7 @@ class ServerConnectionSocket(
   private suspend fun parseGetPeerAddress(): ServerEvent {
     val username = readChannel.readString()
     val ip = readChannel.readIp()
-    val port = readChannel.readInt()
+    val port = readChannel.readInt32()
 
     //        return fr.sercurio.soulseek.domain.ServerEvent.kt.GetPeerAddress(username, ip, port)
     return ServerEvent.NotImplemented
@@ -112,11 +113,11 @@ class ServerConnectionSocket(
   private suspend fun parseWatchUser(): ServerEvent {
     val username = readChannel.readString()
     if (readChannel.readBoolean()) {
-      val status = readChannel.readInt()
-      val avgSpeed = readChannel.readInt()
+      val status = readChannel.readInt32()
+      val avgSpeed = readChannel.readInt32()
       val downloadNum = readChannel.readLong()
-      val files = readChannel.readInt()
-      val dirs = readChannel.readInt()
+      val files = readChannel.readInt32()
+      val dirs = readChannel.readInt32()
       readChannel.readString()
 
       //            fr.sercurio.soulseek.domain.ServerEvent.kt.WatchUser(username, status, avgSpeed,
@@ -128,7 +129,7 @@ class ServerConnectionSocket(
 
   private suspend fun parseGetUserStatus(): ServerEvent {
     val username = readChannel.readString()
-    val status = readChannel.readInt()
+    val status = readChannel.readInt32()
     val privileged = readChannel.readBoolean()
 
     //        return fr.sercurio.soulseek.domain.ServerEvent.kt.GetUserStatus(username, status,
@@ -145,9 +146,9 @@ class ServerConnectionSocket(
 
   private suspend fun parseRoomList(): ServerEvent {
     val rooms = mutableListOf<Room>()
-    val nbPublicRooms = readChannel.readInt()
+    val nbPublicRooms = readChannel.readInt32()
     val roomNames = List(nbPublicRooms) { readChannel.readString() }
-    val roomUserCounts = List(nbPublicRooms) { readChannel.readInt() }
+    val roomUserCounts = List(nbPublicRooms) { readChannel.readInt32() }
 
     for (i in 0 until nbPublicRooms) {
       rooms.add(Room(name = roomNames[i].orEmpty(), userCount = roomUserCounts[i]))
@@ -158,7 +159,7 @@ class ServerConnectionSocket(
 
   private suspend fun parseJoinRoom(): ServerEvent {
     val room = readChannel.readString()
-    val nbUsers = readChannel.readInt()
+    val nbUsers = readChannel.readInt32()
     //    val users = arrayOfNulls<String>(nUsers)
     //    var i = 0
     //    while (i < nUsers) {
@@ -226,12 +227,12 @@ class ServerConnectionSocket(
   private suspend fun parseUserJoinedRoom(): ServerEvent {
     val room = readChannel.readString()
     val username = readChannel.readString()
-    val status = readChannel.readInt()
-    val avgspeed = readChannel.readInt()
+    val status = readChannel.readInt32()
+    val avgspeed = readChannel.readInt32()
     val downloadNum = readChannel.readLong()
-    val files = readChannel.readInt()
-    val dirs = readChannel.readInt()
-    val slotsFree = readChannel.readInt()
+    val files = readChannel.readInt32()
+    val dirs = readChannel.readInt32()
+    val slotsFree = readChannel.readInt32()
     val countryCode = readChannel.readString()
 
     return ServerEvent.UserJoinedRoom(
@@ -251,16 +252,20 @@ class ServerConnectionSocket(
     val username = readChannel.readString()
     val type = readChannel.readString()
     val ip: String = readChannel.readIp()
-    val port = readChannel.readInt()
-    val token = readChannel.readInt()
-    val obfuscatedPort = readChannel.readBoolean()
+    val port = readChannel.readInt32()
+    val token = readChannel.readInt32()
+    val privilegied = readChannel.readBoolean()
+    val obfuscationType = readChannel.readInt32()
+    val obfuscatedPort = readChannel.readInt32()
 
-    return ServerEvent.PeerConnectionRequest(PeerConnectionInfo(username, type, ip, port, token))
+    println("ConnectToPeer reçu: $username type=$type $ip:$port token=$token")
+
+    return ServerEvent.PeerConnectionRequest(username, type, ip, port, token)
   }
 
   private suspend fun parseMessageUser(): ServerEvent {
-    val id = readChannel.readInt()
-    val timestamp = readChannel.readInt()
+    val id = readChannel.readInt32()
+    val timestamp = readChannel.readInt32()
     val username = readChannel.readString()
     val message = readChannel.readString()
     val newMessage = readChannel.readBoolean()
@@ -277,27 +282,11 @@ class ServerConnectionSocket(
 
   private suspend fun parseFileSearch(): ServerEvent {
     val username = readChannel.readString()
-    val ticket = readChannel.readInt()
+    val ticket = readChannel.readInt32()
     val query = readChannel.readString()
     val time = System.currentTimeMillis()
     return ServerEvent.NotImplemented
-    //        return fr.sercurio.soulseek.domain.ServerEvent.kt.FileSearch(username, ticket, query,
-    // time)
-
-    //        val cursor: Cursor = GoSeekData.searchShares(query)
-    //        println("Search Performed. query:" + query + " Time:" +
-    // (System.currentTimeMillis() - time))
-    //        if (cursor != null) {
-    //            println("num results:" + cursor.getCount())
-    //            if (cursor.getCount() !== 0) {
-    //                this.service.sendToPeer(username, object : PeerMessage() {
-    //
-    //                    private fun send(psock: PeerSocket) {
-    //                        psock.sendSearchReply(ticket, query, cursor)
-    //                    }
-    //                })
-    //            }
-    //        }
+    //    return ServerEvent.FileSearch(username, ticket, query, time)
   }
 
   private fun parsePing(): ServerEvent = ServerEvent.NotImplemented
@@ -309,22 +298,22 @@ class ServerConnectionSocket(
   //        fr.sercurio.soulseek.domain.ServerEvent.kt.KickedFromServer()
 
   private suspend fun parseGetRecommendations(): ServerEvent {
-    val nRecs = readChannel.readInt()
+    val nRecs = readChannel.readInt32()
     val recs = arrayOfNulls<String>(nRecs)
     val recLevel = IntArray(nRecs)
     var i: Int = 0
     while (i < nRecs) {
       recs[i] = readChannel.readString()
-      recLevel[i] = readChannel.readInt()
+      recLevel[i] = readChannel.readInt32()
       i++
     }
-    val nUnRecs = readChannel.readInt()
+    val nUnRecs = readChannel.readInt32()
     val unRecs = arrayOfNulls<String>(nUnRecs)
     val unRecLevel = IntArray(nUnRecs)
     i = 0
     while (i < nUnRecs) {
       unRecs[i] = readChannel.readString()
-      unRecLevel[i] = readChannel.readInt()
+      unRecLevel[i] = readChannel.readInt32()
       i++
     }
 
@@ -333,22 +322,22 @@ class ServerConnectionSocket(
   }
 
   private suspend fun parseGetGlobalRecommendations(): ServerEvent {
-    val nRecs = readChannel.readInt()
+    val nRecs = readChannel.readInt32()
     val recs = arrayOfNulls<String>(nRecs)
     val recLevel = IntArray(nRecs)
     var i: Int = 0
     while (i < nRecs) {
       recs[i] = readChannel.readString()
-      recLevel[i] = readChannel.readInt()
+      recLevel[i] = readChannel.readInt32()
       i++
     }
-    val nUnRecs = readChannel.readInt()
+    val nUnRecs = readChannel.readInt32()
     val unRecs = arrayOfNulls<String>(nUnRecs)
     val unRecLevel = IntArray(nUnRecs)
     i = 0
     while (i < nUnRecs) {
       unRecs[i] = readChannel.readString()
-      unRecLevel[i] = readChannel.readInt()
+      unRecLevel[i] = readChannel.readInt32()
       i++
     }
     return ServerEvent.NotImplemented
@@ -400,67 +389,67 @@ class ServerConnectionSocket(
   }
 
   private suspend fun parseCheckPrivileges(): ServerEvent {
-    readChannel.readInt()
+    readChannel.readInt32()
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseSearchRequest(): ServerEvent {
     val distributedCode: Byte = readChannel.readByte()
-    val unknown = readChannel.readInt()
+    val unknown = readChannel.readInt32()
     val username = readChannel.readString()
-    val token = readChannel.readInt()
+    val token = readChannel.readInt32()
     val query = readChannel.readString()
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseNetInfo(): ServerEvent {
-    val nParents = readChannel.readInt()
+    val nParents = readChannel.readInt32()
     val parentUser = arrayOfNulls<String>(nParents)
     val parentIp = arrayOfNulls<String>(nParents)
     val parentPort = IntArray(nParents)
     for (i in 0 until nParents) {
       parentUser[i] = readChannel.readString()
       parentIp[i] = readChannel.readIp()
-      parentPort[i] = readChannel.readInt()
+      parentPort[i] = readChannel.readInt32()
     }
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseWishlistInterval(): ServerEvent {
-    val interval = readChannel.readInt()
+    val interval = readChannel.readInt32()
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseGetSimilarUsers(): ServerEvent {
-    val nUsers = readChannel.readInt()
+    val nUsers = readChannel.readInt32()
     val user = arrayOfNulls<String>(nUsers)
     val status = IntArray(nUsers)
     for (i in 0 until nUsers) {
       user[i] = readChannel.readString()
-      status[i] = readChannel.readInt()
+      status[i] = readChannel.readInt32()
     }
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseGetItemRecommendations(): ServerEvent {
     val item = readChannel.readString()
-    val nRecs = readChannel.readInt()
+    val nRecs = readChannel.readInt32()
     val recs = arrayOfNulls<String>(nRecs)
     val parsedValues = IntArray(nRecs)
     for (i in 0 until nRecs) {
       recs[i] = readChannel.readString()
-      parsedValues[i] = readChannel.readInt()
+      parsedValues[i] = readChannel.readInt32()
     }
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parseGetItemSimilarUsers(): ServerEvent {
     val item = readChannel.readString()
-    val nUsers = readChannel.readInt()
+    val nUsers = readChannel.readInt32()
     val user = arrayOfNulls<String>(nUsers)
     for (i in 0 until nUsers) {
       user[i] = readChannel.readString()
-      readChannel.readInt()
+      readChannel.readInt32()
     }
     return ServerEvent.NotImplemented
   }
@@ -510,13 +499,13 @@ class ServerConnectionSocket(
   }
 
   private suspend fun parseAcknowledgeNotifyPrivileges(): ServerEvent {
-    val token = readChannel.readInt()
+    val token = readChannel.readInt32()
     return ServerEvent.NotImplemented
   }
 
   private suspend fun parsePrivateRoomUsers(): ServerEvent {
     val room = readChannel.readString()
-    val nUsers = readChannel.readInt()
+    val nUsers = readChannel.readInt32()
     val users = arrayOfNulls<String>(nUsers)
     for (i in 0 until nUsers) {
       users[i] = readChannel.readString()
@@ -580,7 +569,7 @@ class ServerConnectionSocket(
 
   private suspend fun parsePrivateRoomOwned(): ServerEvent {
     val room = readChannel.readString()
-    val nOperators = readChannel.readInt()
+    val nOperators = readChannel.readInt32()
     val operator = arrayOfNulls<String>(nOperators)
     for (i in 0 until nOperators) {
       operator[i] = readChannel.readString()
@@ -596,7 +585,7 @@ class ServerConnectionSocket(
   }
 
   private suspend fun parseCannotConnect(): ServerEvent {
-    val token = readChannel.readInt()
+    val token = readChannel.readInt32()
     return ServerEvent.NotImplemented
   }
 }

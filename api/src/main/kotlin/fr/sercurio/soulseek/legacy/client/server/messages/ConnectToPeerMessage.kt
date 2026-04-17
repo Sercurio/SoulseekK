@@ -10,6 +10,6 @@ class ConnectToPeerMessage(
 )
 
 enum class ConnectToPeerMessageType(val type: String) {
-    PEER("P"),
-    TRANSFER("F"),
+  PEER("P"),
+  TRANSFER("F"),
 }

@@ -8,5 +8,5 @@ data class User(
     val files: Int,
     val dirs: Int,
     val slotsFree: Int,
-    val countryCode: String
+    val countryCode: String,
 )

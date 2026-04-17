@@ -1,18 +1,18 @@
-//package fr.sercurio.soulseek.client.peer
+// package fr.sercurio.soulseek.client.peer
 //
-//import fr.sercurio.soulseek.client.peer.messages.DownloadCompleteMessage
-//import fr.sercurio.soulseek.client.shared.AbstractSocket
-//import fr.sercurio.soulseek.client.shared.ResponseCallback
-//import fr.sercurio.soulseek.client.shared.model.ByteMessage
-//import io.ktor.utils.io.jvm.javaio.toInputStream
-//import io.ktor.utils.io.readInt
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.withContext
-//import java.io.ByteArrayOutputStream
-//import java.io.DataInputStream
-//import java.io.File
+// import fr.sercurio.soulseek.client.peer.messages.DownloadCompleteMessage
+// import fr.sercurio.soulseek.client.shared.AbstractSocket
+// import fr.sercurio.soulseek.client.shared.ResponseCallback
+// import fr.sercurio.soulseek.client.shared.model.ByteMessage
+// import io.ktor.utils.io.jvm.javaio.toInputStream
+// import io.ktor.utils.io.readInt
+// import kotlinx.coroutines.Dispatchers
+// import kotlinx.coroutines.withContext
+// import java.io.ByteArrayOutputStream
+// import java.io.DataInputStream
+// import java.io.File
 //
-//class TransferSocket(
+// class TransferSocket(
 //    private val saveDirectory: String?,
 //    host: String,
 //    port: Int,
@@ -21,7 +21,7 @@
 //    private val filepath: String,
 //    private val filesize: Long,
 //    val downloadCompleteCallback: ResponseCallback<DownloadCompleteMessage> = ResponseCallback(),
-//) : AbstractSocket(host, port) {
+// ) : AbstractSocket(host, port) {
 //  override suspend fun onSocketConnected() {
 //    pierceFirewall(token)
 //  }
@@ -62,9 +62,10 @@
 //    send(ByteMessage().writeInt8(0).writeInt32(token).getBuff())
 //  }
 //
-//  private suspend fun resumeDownload(offset: Long) = send(ByteMessage().writeLong(offset).getBuff())
+//  private suspend fun resumeDownload(offset: Long) =
+// send(ByteMessage().writeLong(offset).getBuff())
 //
 //  fun onDownloadComplete(callback: (DownloadCompleteMessage) -> Unit) {
 //    downloadCompleteCallback.subscribe { callback(it) }
 //  }
-//}
+// }

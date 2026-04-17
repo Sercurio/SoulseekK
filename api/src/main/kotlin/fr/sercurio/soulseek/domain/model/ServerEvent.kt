@@ -22,7 +22,13 @@ sealed class ServerEvent {
 
   data class UserLeftRoom(val room: String, val username: String) : ServerEvent()
 
-  data class PeerConnectionRequest(val info: PeerConnectionInfo) : ServerEvent()
+  data class PeerConnectionRequest(
+      val username: String,
+      val type: String,
+      val ip: String,
+      val port: Int,
+      val token: Int,
+  ) : ServerEvent()
 
   object NotImplemented : ServerEvent()
 }

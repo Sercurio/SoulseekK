@@ -4,17 +4,23 @@ package fr.sercurio.soulseek
 // import fr.sercurio.soulseek.client.peer.TransferSocket
 // import fr.sercurio.soulseek.client.server.ServerSocket
 import fr.sercurio.soulseek.data.internal.SoulseekClientImpl
+import fr.sercurio.soulseek.data.manager.PeerManager
+import fr.sercurio.soulseek.data.model.SoulFile
 import fr.sercurio.soulseek.data.network.ServerConnectionSocket
+import fr.sercurio.soulseek.domain.IPeerManager
+import fr.sercurio.soulseek.domain.IServerConnection
 import fr.sercurio.soulseek.domain.model.Login
 import fr.sercurio.soulseek.domain.model.PeerConnectionInfo
 import fr.sercurio.soulseek.domain.model.Room
 import fr.sercurio.soulseek.domain.model.SearchReply
 import fr.sercurio.soulseek.domain.model.UserMessage
+import io.ktor.network.selector.SelectorManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 // data class TransferringFile(
@@ -129,57 +135,6 @@ import kotlinx.coroutines.runBlocking
 //      }
 //    }
 //  }
-//
-//  suspend fun login(username: String, password: String) {
-//    serverSocket.login(username, password)
-//  }
-//
-//  suspend fun loginTest(username: String, password: String) =
-//      serverSocket.loginTest(username, password)
-//
-//  suspend fun fileSearch(query: String) {
-//    val token = Random.nextInt(Integer.MAX_VALUE)
-//    fileSearches[token] = query
-//    serverSocket.fileSearch(query, token)
-//  }
-//
-//  suspend fun joinRoom(roomName: String) {
-//    serverSocket.joinRoom(roomName)
-//  }
-//
-//  suspend fun sayInRoom(roomName: String, message: String) {
-//    serverSocket.sendRoomMessage(roomName, message)
-//  }
-//
-//  suspend fun queueUpload(username: String, file: SoulFile) {
-//    askedFiles[file.path] = file
-//    peerSockets[username]?.queueUpload(file)
-//  }
-//
-//  fun onLogin(callback: (LoginMessage) -> Unit) {
-//    serverSocket.onLogin { callback(it) }
-//  }
-//
-//  fun onReceiveRoomList(callback: (RoomListMessage) -> Unit) {
-//    serverSocket.onReceiveRoomList { callback(it) }
-//  }
-//
-//  fun onSayInRoom(callback: (SayInRoomMessage) -> Unit) {
-//    serverSocket.onSayInChatRoom { callback(it) }
-//  }
-//
-//  fun onReceiveSearchReply(callback: (SearchReplyMessage) -> Unit) {
-//    onSearchReplyCallback = callback
-//  }
-//
-//  fun onDownloadComplete(callback: (DownloadCompleteMessage) -> Unit) {
-//    onDownloadComplete = callback
-//  }
-//
-//  fun setSaveDirectory(path: String?) {
-//    saveDirectory = path
-//  }
-// }
 
 interface SoulseekClient {
   val login: StateFlow<Login?>
@@ -204,14 +159,20 @@ interface SoulseekClient {
 
   suspend fun fileSearch(request: String)
 
+  suspend fun queueUpload(username: String, soulFile: SoulFile)
+
   suspend fun disconnect()
 
   companion object {
     operator fun invoke(
         scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     ): SoulseekClient {
-      val serverPort = ServerConnectionSocket(scope = scope)
-      return SoulseekClientImpl(serverPort, scope)
+      val selectorManager = SelectorManager(Dispatchers.IO)
+      val serverConnection: IServerConnection =
+          ServerConnectionSocket(scope = scope, selectorManager = selectorManager)
+      val peerManager: IPeerManager = PeerManager(scope = scope, selectorManager = selectorManager)
+
+      return SoulseekClientImpl(serverConnection, peerManager, scope)
     }
   }
 }
@@ -224,6 +185,12 @@ fun main() {
     soulseekClient.login("gladOS", "gladOS")
 
     delay(2000)
+
+    soulseekClient.fileSearch("Shpongle")
+
+    launch {
+      soulseekClient.peerConnectionRequests.collect { println("PeerConnectionRequest: $it") }
+    }
 
     while (true) {
       delay(Long.MAX_VALUE)

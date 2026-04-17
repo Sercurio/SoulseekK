@@ -6,6 +6,7 @@ constraintlayout = "2.2.1"
 composeBom = "2026.03.01"
 navigation = "2.9.7"
 materialIcons = "1.7.8"
+material = "1.13.0"
 
 # Kotlin & Networking
 kotlinxCoroutines = "1.10.2"
@@ -22,6 +23,9 @@ commonsConfiguration2 = "2.14.0"
 junitJupiter = "6.0.3"
 
 [libraries]
+# Material
+google-android-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
 # AndroidX Core
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
@@ -45,7 +49,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIcons" }
 
 # Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin-bom" }
@@ -73,10 +77,11 @@ android-ui = [
     "androidx-preference"
 ]
 compose = [
+    "google-android-material",
     "androidx-compose-ui",
     "androidx-compose-material3",
     "androidx-compose-ui-tooling-preview",
-    "androidx-compose-material-icons-extended"
+    "androidx-compose-material-icons-extended",
 ]
 navigation = [
     "androidx-navigation-compose",
